@@ -1,0 +1,68 @@
+#include <Arduino.h>
+int buzzerPin = 8;
+int segmentPins[] = {2, 3, 4, 5, 6, 7, 9}; // a, b, c, d, e, f, g
+int numSegments = 7;
+
+// Order of columns: a, b, c, d, e, f, g
+// 1 = segment ON, 0 = segment OFF
+byte digits[10][7] = {
+  {1, 1, 1, 1, 1, 1, 0}, // 0
+  {0, 1, 1, 0, 0, 0, 0}, // 1
+  {1, 1, 0, 1, 1, 0, 1}, // 2
+  {1, 1, 1, 1, 0, 0, 1}, // 3
+  {0, 1, 1, 0, 0, 1, 1}, // 4
+  {1, 0, 1, 1, 0, 1, 1}, // 5
+  {1, 0, 1, 1, 1, 1, 1}, // 6
+  {1, 1, 1, 0, 0, 0, 0}, // 7
+  {1, 1, 1, 1, 1, 1, 1}, // 8
+  {1, 1, 1, 1, 0, 1, 1}, // 9
+};
+
+// showDigit function - copied from Task 4
+void showDigit(int n) {
+  // Safety check: do nothing if outside 0-9
+  if (n < 0 || n > 9) return;
+
+  // Loop through each of the 7 segments and set it ON or OFF
+  // based on the lookup table for digit n.
+  for (int i = 0; i < numSegments; i++) {
+    digitalWrite(segmentPins[i], digits[n][i]);
+  }
+}
+
+void setup() {
+  Serial.begin(9600);
+
+  // Set up the buzzer pin
+  pinMode(buzzerPin, OUTPUT);
+
+  // Set up each segment pin
+  for (int i = 0; i < numSegments; i++) {
+    pinMode(segmentPins[i], OUTPUT);
+  }
+
+  Serial.println("=== Beeping Countdown Starting ===");
+
+  // Count down from 9 to 1
+  int count = 9;
+  while (count >= 1) {
+    Serial.print("Counting: ");
+    Serial.println(count);
+
+    showDigit(count);                   
+    tone(buzzerPin, 1000, 200);          
+    delay(1000);                        
+
+    count = count - 1;
+  }
+
+  // Countdown finished - show 0 and play the longer completion tone
+  showDigit(0);
+  tone(buzzerPin, 1500, 1000);
+
+  Serial.println("=== Countdown Complete ===");
+}
+
+void loop() {
+  
+}
